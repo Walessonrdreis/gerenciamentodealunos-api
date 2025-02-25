@@ -6,6 +6,13 @@ class Migration {
     private string $migrationsPath;
     private string $seedsPath;
 
+    private array $classNameMap = [
+        '001_create_users_table' => 'CreateUsersTable',
+        '002_create_alunos_table' => 'CreateAlunosTable',
+        '003_add_new_admin' => 'AddNewAdmin',
+        '004_update_admin_password' => 'UpdateAdminPassword'
+    ];
+
     public function __construct() {
         echo "Iniciando construtor da Migration...\n";
         $this->db = Database::getInstance()->getConnection();
@@ -44,8 +51,8 @@ class Migration {
                     echo "Aplicando migration: $migration\n";
                     require_once $this->migrationsPath . '/' . $migration;
                     
-                    $className = $baseName;
-                    if (!class_exists($className)) {
+                    $className = $this->classNameMap[$baseName] ?? null;
+                    if (!$className || !class_exists($className)) {
                         echo "Aviso: Classe $className não encontrada no arquivo $migration\n";
                         continue;
                     }
