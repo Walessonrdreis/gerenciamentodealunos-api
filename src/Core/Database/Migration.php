@@ -10,7 +10,8 @@ class Migration {
         '001_create_users_table' => 'CreateUsersTable',
         '002_create_alunos_table' => 'CreateAlunosTable',
         '003_add_new_admin' => 'AddNewAdmin',
-        '004_update_admin_password' => 'UpdateAdminPassword'
+        '004_update_admin_password' => 'UpdateAdminPassword',
+        '005_reset_migrations' => 'ResetMigrations'
     ];
 
     public function __construct() {
