@@ -75,6 +75,7 @@ jobs:
       run: |
         sleep 30 # Aguarda 30 segundos para garantir que os arquivos foram enviados
         echo "Executando migrações..."
-        echo "JWT_SECRET: ${{ secrets.JWT_SECRET }}"
-        curl -v -X GET "https://seoeads.com/api/run-migrations.php?key=${{ secrets.JWT_SECRET }}" || true
+        KEY=$(echo -n "${{ secrets.JWT_SECRET }}" | jq -sRr @uri)
+        echo "Chave codificada para URL"
+        curl -v -X GET "https://seoeads.com/api/run-migrations.php?key=$KEY" || true
         echo "Fim da execução das migrações" 
