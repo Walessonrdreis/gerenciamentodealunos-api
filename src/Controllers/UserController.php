@@ -28,7 +28,7 @@ class UserController {
             
             if (!isset($data['name']) || !isset($data['email']) || !isset($data['senha'])) {
                 http_response_code(400);
-                echo json_encode(['error' => 'Nome, email e senha são obrigatórios']);
+                echo json_encode(['error' => 'Name, email e senha são obrigatórios']);
                 return;
             }
 
@@ -41,10 +41,18 @@ class UserController {
                 return;
             }
 
+            // Validar role
+            $roles_permitidos = ['admin', 'teacher', 'student'];
+            $role = isset($data['role']) ? strtolower($data['role']) : 'student';
+            if (!in_array($role, $roles_permitidos)) {
+                http_response_code(400);
+                echo json_encode(['error' => 'Role inválido. Valores permitidos: ' . implode(', ', $roles_permitidos)]);
+                return;
+            }
+
             $senha = password_hash($data['senha'], PASSWORD_DEFAULT);
-            $role = isset($data['role']) ? $data['role'] : 'student';
             
-            $stmt = $this->db->prepare("INSERT INTO users (name, email, senha, role, status) VALUES (?, ?, ?, ?, 'active')");
+            $stmt = $this->db->prepare(" INSERT INTO users (name, email, senha,role, status) VALUES (?, ?, ?, ?, 'active')");
             $stmt->execute([$data['name'], $data['email'], $senha, $role]);
 
             http_response_code(201);
@@ -116,13 +124,27 @@ class UserController {
             }
             
             if (isset($data['role'])) {
+                $roles_permitidos = ['admin', 'teacher', 'student'];
+                $role = strtolower($data['role']);
+                if (!in_array($role, $roles_permitidos)) {
+                    http_response_code(400);
+                    echo json_encode(['error' => 'Role inválido. Valores permitidos: ' . implode(', ', $roles_permitidos)]);
+                    return;
+                }
                 $campos[] = "role = ?";
-                $valores[] = $data['role'];
+                $valores[] = $role;
             }
             
             if (isset($data['status'])) {
+                $status_permitidos = ['active', 'inactive'];
+                $status = strtolower($data['status']);
+                if (!in_array($status, $status_permitidos)) {
+                    http_response_code(400);
+                    echo json_encode(['error' => 'Status inválido. Valores permitidos: ' . implode(', ', $status_permitidos)]);
+                    return;
+                }
                 $campos[] = "status = ?";
-                $valores[] = $data['status'];
+                $valores[] = $status;
             }
 
             if (empty($campos)) {
