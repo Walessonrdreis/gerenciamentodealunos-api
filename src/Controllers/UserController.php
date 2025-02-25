@@ -13,7 +13,7 @@ class UserController {
 
     public function listar() {
         try {
-            $stmt = $this->db->query("SELECT id, nome, email, tipo, status, created_at, updated_at FROM users");
+            $stmt = $this->db->query("SELECT id, name, email, role, status, created_at, updated_at FROM users");
             $users = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             echo json_encode(['success' => true, 'data' => $users]);
         } catch (\Exception $e) {
@@ -26,7 +26,7 @@ class UserController {
         try {
             $data = json_decode(file_get_contents('php://input'), true);
             
-            if (!isset($data['nome']) || !isset($data['email']) || !isset($data['senha'])) {
+            if (!isset($data['name']) || !isset($data['email']) || !isset($data['senha'])) {
                 http_response_code(400);
                 echo json_encode(['error' => 'Nome, email e senha são obrigatórios']);
                 return;
@@ -42,10 +42,10 @@ class UserController {
             }
 
             $senha = password_hash($data['senha'], PASSWORD_DEFAULT);
-            $tipo = isset($data['tipo']) ? $data['tipo'] : 'aluno';
+            $role = isset($data['role']) ? $data['role'] : 'aluno';
             
-            $stmt = $this->db->prepare("INSERT INTO users (nome, email, senha, tipo) VALUES (?, ?, ?, ?)");
-            $stmt->execute([$data['nome'], $data['email'], $senha, $tipo]);
+            $stmt = $this->db->prepare("INSERT INTO users (name, email, senha, role) VALUES (?, ?, ?, ?)");
+            $stmt->execute([$data['name'], $data['email'], $senha, $role]);
 
             http_response_code(201);
             echo json_encode([
@@ -61,7 +61,7 @@ class UserController {
 
     public function buscar($id) {
         try {
-            $stmt = $this->db->prepare("SELECT id, nome, email, tipo, status, created_at, updated_at FROM users WHERE id = ?");
+            $stmt = $this->db->prepare("SELECT id, name, email, role, status, created_at, updated_at FROM users WHERE id = ?");
             $stmt->execute([$id]);
             $user = $stmt->fetch(\PDO::FETCH_ASSOC);
 
@@ -91,9 +91,9 @@ class UserController {
             $campos = [];
             $valores = [];
             
-            if (isset($data['nome'])) {
-                $campos[] = "nome = ?";
-                $valores[] = $data['nome'];
+            if (isset($data['name'])) {
+                $campos[] = "name = ?";
+                $valores[] = $data['name'];
             }
             
             if (isset($data['email'])) {
@@ -115,9 +115,9 @@ class UserController {
                 $valores[] = password_hash($data['senha'], PASSWORD_DEFAULT);
             }
             
-            if (isset($data['tipo'])) {
-                $campos[] = "tipo = ?";
-                $valores[] = $data['tipo'];
+            if (isset($data['role'])) {
+                $campos[] = "role = ?";
+                $valores[] = $data['role'];
             }
             
             if (isset($data['status'])) {
