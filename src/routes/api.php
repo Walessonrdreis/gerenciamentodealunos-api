@@ -25,4 +25,9 @@ $router->post('/alunos', [new AlunoController(), 'criar']);
 $router->get('/alunos/{id}', [new AlunoController(), 'buscar']);
 $router->put('/alunos/{id}', [new AlunoController(), 'atualizar']);
 $router->delete('/alunos/{id}', [new AlunoController(), 'deletar']);
-error_log("Rotas de alunos registradas"); 
+error_log("Rotas de alunos registradas");
+
+// Rotas de Migração
+$router->get('/migrations/run', function() {
+    require_once __DIR__ . '/../../bin/run-migrations.php';
+}); 

@@ -74,5 +74,5 @@ jobs:
         MIGRATION_KEY="migration_key_$(date +%Y%m%d)"
         KEY=$(echo -n "$MIGRATION_KEY" | jq -sRr @uri)
         echo "Chave de migração: $MIGRATION_KEY"
-        curl -v -X GET "https://seoeads.com/api/bin/run-migrations.php?key=$KEY" || true
+        curl -v -X GET "https://seoeads.com/api/migrations/run?key=$KEY" || true
         echo "Fim da execução das migrações" 
