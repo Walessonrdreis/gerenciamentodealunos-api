@@ -7,7 +7,7 @@ use Firebase\JWT\JWT;
 
 class AuthController
 {
-    private \PDO $db;
+    private $db;
 
     public function __construct()
     {
@@ -17,21 +17,19 @@ class AuthController
     public function login()
     {
         try {
-            // Obter dados do corpo da requisição
             $data = json_decode(file_get_contents('php://input'), true);
             
-            if (!isset($data['email']) || !isset($data['password'])) {
+            if (!isset($data['email']) || !isset($data['senha'])) {
                 http_response_code(400);
                 echo json_encode(['error' => 'Email e senha são obrigatórios']);
                 return;
             }
 
-            // Buscar usuário pelo email
-            $stmt = $this->db->prepare("SELECT * FROM users WHERE email = :email AND status = 'active'");
-            $stmt->execute(['email' => $data['email']]);
-            $user = $stmt->fetch();
+            $stmt = $this->db->prepare("SELECT * FROM users WHERE email = ? AND status = TRUE");
+            $stmt->execute([$data['email']]);
+            $user = $stmt->fetch(\PDO::FETCH_ASSOC);
 
-            if (!$user || !password_verify($data['password'], $user['password'])) {
+            if (!$user || !password_verify($data['senha'], $user['senha'])) {
                 http_response_code(401);
                 echo json_encode(['error' => 'Credenciais inválidas']);
                 return;
@@ -39,34 +37,59 @@ class AuthController
 
             // Gerar token JWT
             $payload = [
-                'sub' => $user['id'],
-                'name' => $user['name'],
+                'id' => $user['id'],
+                'nome' => $user['nome'],
                 'email' => $user['email'],
-                'role' => $user['role'],
-                'iat' => time(),
-                'exp' => time() + (60 * 60) // 1 hora
+                'tipo' => $user['tipo'],
+                'exp' => time() + (60 * 60 * 24) // Token válido por 24 horas
             ];
 
             $jwt = JWT::encode($payload, getenv('JWT_SECRET'), 'HS256');
 
-            // Atualizar último login
-            $stmt = $this->db->prepare("UPDATE users SET last_login = NOW() WHERE id = :id");
-            $stmt->execute(['id' => $user['id']]);
-
-            // Retornar resposta
             echo json_encode([
+                'success' => true,
+                'message' => 'Login realizado com sucesso',
                 'token' => $jwt,
                 'user' => [
                     'id' => $user['id'],
-                    'name' => $user['name'],
+                    'nome' => $user['nome'],
                     'email' => $user['email'],
-                    'role' => $user['role']
+                    'tipo' => $user['tipo']
                 ]
             ]);
-
         } catch (\Exception $e) {
             http_response_code(500);
-            echo json_encode(['error' => 'Erro interno do servidor']);
+            echo json_encode(['error' => 'Erro ao realizar login: ' . $e->getMessage()]);
+        }
+    }
+
+    public function verificarToken()
+    {
+        try {
+            $headers = getallheaders();
+            $auth = isset($headers['Authorization']) ? $headers['Authorization'] : '';
+            
+            if (!$auth || !preg_match('/Bearer\s+(.+)/', $auth, $matches)) {
+                http_response_code(401);
+                echo json_encode(['error' => 'Token não fornecido']);
+                return;
+            }
+
+            $token = $matches[1];
+            $decoded = JWT::decode($token, getenv('JWT_SECRET'), ['HS256']);
+
+            echo json_encode([
+                'success' => true,
+                'user' => [
+                    'id' => $decoded->id,
+                    'nome' => $decoded->nome,
+                    'email' => $decoded->email,
+                    'tipo' => $decoded->tipo
+                ]
+            ]);
+        } catch (\Exception $e) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Token inválido']);
         }
     }
 } 
