@@ -1,6 +1,6 @@
 <?php
 // Corrigindo o caminho do autoload
-require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\Core\Config\DotEnv;
 use App\Core\Router\Router;
@@ -8,7 +8,7 @@ use App\Core\Database\Database;
 
 try {
     // Carregar variáveis de ambiente
-    (new DotEnv(__DIR__ . '/.env'))->load();
+    (new DotEnv(__DIR__ . '/../.env'))->load();
 
     // Configurar CORS baseado no ambiente
     $allowedOrigin = getenv('CORS_ALLOW_ORIGIN') ?: '*';
@@ -41,7 +41,7 @@ try {
 
     // Configurar rotas
     $router = new Router();
-    require_once __DIR__ . '/src/routes/api.php';
+    require_once __DIR__ . '/../src/routes/api.php';
 
     // Executar roteamento
     $router->handle();
