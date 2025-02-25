@@ -29,6 +29,10 @@ class AuthController
             $stmt->execute([$data['email']]);
             $user = $stmt->fetch(\PDO::FETCH_ASSOC);
 
+            error_log("Dados do usuário: " . print_r($user, true));
+            error_log("Senha fornecida: " . $data['senha']);
+            error_log("Hash armazenado: " . ($user ? $user['senha'] : 'usuário não encontrado'));
+
             if (!$user || !password_verify($data['senha'], $user['senha'])) {
                 http_response_code(401);
                 echo json_encode(['error' => 'Credenciais inválidas']);
