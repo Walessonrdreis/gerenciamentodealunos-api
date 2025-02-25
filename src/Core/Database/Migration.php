@@ -28,18 +28,32 @@ class Migration {
             echo "Verificando arquivos de migration...\n";
             $files = scandir($this->migrationsPath);
             $toApplyMigrations = array_diff($files, ['.', '..', '.gitkeep']);
-            echo "Migrations para aplicar: " . implode(", ", $toApplyMigrations) . "\n";
+            
+            // Filtra apenas arquivos PHP
+            $phpMigrations = array_filter($toApplyMigrations, function($file) {
+                return pathinfo($file, PATHINFO_EXTENSION) === 'php';
+            });
+            
+            echo "Migrations PHP para aplicar: " . implode(", ", $phpMigrations) . "\n";
 
-            foreach ($toApplyMigrations as $migration) {
-                if (!in_array($migration, $appliedMigrations)) {
+            foreach ($phpMigrations as $migration) {
+                $baseName = pathinfo($migration, PATHINFO_FILENAME);
+                if (!in_array($baseName, array_map(function($m) { 
+                    return pathinfo($m, PATHINFO_FILENAME); 
+                }, $appliedMigrations))) {
                     echo "Aplicando migration: $migration\n";
                     require_once $this->migrationsPath . '/' . $migration;
                     
-                    $className = pathinfo($migration, PATHINFO_FILENAME);
+                    $className = $baseName;
+                    if (!class_exists($className)) {
+                        echo "Aviso: Classe $className não encontrada no arquivo $migration\n";
+                        continue;
+                    }
+                    
                     $migrationInstance = new $className();
                     $migrationInstance->up();
                     
-                    $this->logMigration($migration);
+                    $this->logMigration($baseName);
                     echo "Migration aplicada com sucesso: $migration\n";
                 }
             }
