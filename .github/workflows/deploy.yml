@@ -40,13 +40,9 @@ jobs:
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         JWT_SECRET: ${{ secrets.JWT_SECRET }}
       run: |
-        echo "DB_HOST=127.0.0.1" > .env
-        echo "DB_PORT=3306" >> .env
-        echo "DB_DATABASE=u492226363_school" >> .env
-        echo "DB_USERNAME=u492226363_admin" >> .env
-        echo "DB_PASSWORD=$DB_PASSWORD" >> .env
-        echo "JWT_SECRET=$JWT_SECRET" >> .env
-        echo "CORS_ALLOW_ORIGIN=https://seoeads.com" >> .env
+        export DB_PASSWORD
+        export JWT_SECRET
+        php bin/generate-env.php production
 
     - name: Deploy to Hostinger
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
@@ -68,7 +64,7 @@ jobs:
           **/tests/**
           README.md
           .env.example
-          .env.production
+          config/production.php
           phpunit.xml
 
     - name: Run Migrations

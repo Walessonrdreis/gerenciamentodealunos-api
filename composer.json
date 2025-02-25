@@ -21,9 +21,22 @@
     "scripts": {
         "check-table": "php bin/check-table.php",
         "check-user": "php bin/check-user.php",
-        "run-migrations": "php run-migrations.php",
+        "run-migrations": "php bin/run-migrations.php",
         "post-install-cmd": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+        ],
+        "post-create-project-cmd": [
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
+            "@php -r \"file_exists('config/.env.production') || copy('.env.example', 'config/.env.production');\""
+        ],
+        "test": [
+            "@php bin/check-table.php users",
+            "@php bin/check-table.php alunos"
+        ],
+        "setup": [
+            "@composer install",
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
+            "@php bin/run-migrations.php"
         ]
     }
 } 
