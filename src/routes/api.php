@@ -3,6 +3,7 @@
 use App\Controllers\AuthController;
 use App\Controllers\AlunoController;
 use App\Controllers\UserController;
+use App\Core\Database\Scripts\RunMigrations;
 
 // Rotas de autenticação
 $router->post('/auth/login', [new AuthController(), 'login']);
@@ -24,5 +25,13 @@ $router->delete('/alunos/{id}', [new AlunoController(), 'deletar']);
 
 // Rotas de Migração
 $router->get('/migrations/run', function() {
-    require_once __DIR__ . '/../../bin/run-migrations.php';
+    $migrationKey = $_GET['key'] ?? '';
+    $runner = new RunMigrations($migrationKey);
+    $result = $runner->execute();
+    
+    if (!$result['success']) {
+        http_response_code(400);
+    }
+    
+    echo json_encode($result);
 }); 

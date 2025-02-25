@@ -9,10 +9,12 @@ use Exception;
 class RunMigrations {
     private string $migrationKey;
     private Migration $migration;
+    private bool $isDev;
 
     public function __construct(string $migrationKey) {
         $this->loadEnvironment();
         $this->migrationKey = $migrationKey;
+        $this->isDev = getenv('APP_ENV') === 'development';
         $this->migration = new Migration();
     }
 
@@ -44,9 +46,13 @@ class RunMigrations {
             ];
 
         } catch (Exception $e) {
+            if ($this->isDev) {
+                error_log("Erro durante a migração: " . $e->getMessage());
+                error_log("Stack trace: " . $e->getTraceAsString());
+            }
             return [
                 'success' => false,
-                'error' => $e->getMessage()
+                'error' => $this->isDev ? $e->getMessage() : 'Erro ao executar migrações'
             ];
         }
     }
