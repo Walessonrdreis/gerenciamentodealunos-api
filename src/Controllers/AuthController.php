@@ -19,9 +19,9 @@ class AuthController
         try {
             $data = json_decode(file_get_contents('php://input'), true);
             
-            if (!isset($data['email']) || !isset($data['senha'])) {
+            if (!isset($data['email']) || !isset($data['password'])) {
                 http_response_code(400);
-                echo json_encode(['error' => 'Email e senha são obrigatórios']);
+                echo json_encode(['error' => 'Email e password são obrigatórios']);
                 return;
             }
 
@@ -31,12 +31,12 @@ class AuthController
             $user = $stmt->fetch(\PDO::FETCH_ASSOC);
 
             error_log("Dados do usuário: " . print_r($user, true));
-            error_log("Senha fornecida: " . $data['senha']);
-            error_log("Hash armazenado: " . ($user ? $user['senha'] : 'usuário não encontrado'));
+            error_log("Password fornecido: " . $data['password']);
+            error_log("Hash armazenado: " . ($user ? $user['password'] : 'usuário não encontrado'));
             error_log("Colunas disponíveis: " . implode(", ", array_keys($user ?? [])));
-            error_log("Resultado do password_verify: " . (password_verify($data['senha'], $user['senha'] ?? '') ? 'true' : 'false'));
+            error_log("Resultado do password_verify: " . (password_verify($data['password'], $user['password'] ?? '') ? 'true' : 'false'));
 
-            if (!$user || !password_verify($data['senha'], $user['senha'])) {
+            if (!$user || !password_verify($data['password'], $user['password'])) {
                 http_response_code(401);
                 echo json_encode(['error' => 'Credenciais inválidas']);
                 return;
