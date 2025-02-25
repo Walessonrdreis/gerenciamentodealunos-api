@@ -18,7 +18,7 @@ class Migration {
     public function __construct() {
         $this->isDev = getenv('APP_ENV') === 'development';
         $this->db = Database::getInstance()->getConnection();
-        $this->migrationsPath = __DIR__ . '/../../../database/migrations';
+        $this->migrationsPath = __DIR__ . '/../../../database/Migrations';
         $this->seedsPath = __DIR__ . '/../../../database/seeds';
         
         if ($this->isDev) {
