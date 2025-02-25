@@ -69,15 +69,9 @@ jobs:
           README.md
           .env.example
           .env.production
-          phpunit.xml
+          phpunit.xml 
 
-    - name: Run Migrations on Server
-      uses: appleboy/ssh-action@master
-      with:
-        host: 62.72.62.253
-        username: u492226363.deploy
-        password: ${{ secrets.FTP_PASSWORD }}
-        port: 65002
-        script: |
-          cd /api
-          php database/migrate.php 
+    - name: Run Migrations
+      run: |
+        sleep 30 # Aguarda 30 segundos para garantir que os arquivos foram enviados
+        curl -X GET "https://seoeads.com/api/run-migrations.php?key=${{ secrets.JWT_SECRET }}" || true 
