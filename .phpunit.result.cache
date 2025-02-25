@@ -1,1 +1,1 @@
-{"version":1,"defects":{"ApiRoutesTest::testLoginRoute":8},"times":{"ExemploTest::testExemplo":0.002,"ApiRoutesTest::testLoginRoute":1.337}}
+{"version":1,"defects":{"ApiRoutesTest::testLoginRoute":7,"ApiRoutesTest::testVerifyTokenRoute":7,"ApiRoutesTest::testInvalidLoginCredentials":7},"times":{"ExemploTest::testExemplo":0.002,"ApiRoutesTest::testLoginRoute":0.208,"ApiRoutesTest::testVerifyTokenRoute":0.226,"ApiRoutesTest::testInvalidLoginCredentials":0.224}}
