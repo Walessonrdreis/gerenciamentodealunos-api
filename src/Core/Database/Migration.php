@@ -26,13 +26,6 @@ class Migration {
 
     public function runMigrations(): void {
         try {
-            echo "Criando tabela de migrations...\n";
-            $this->createMigrationsTable();
-
-            echo "Obtendo migrations já aplicadas...\n";
-            $appliedMigrations = $this->getAppliedMigrations();
-            echo "Migrations já aplicadas: " . implode(", ", $appliedMigrations) . "\n";
-
             echo "Verificando arquivos de migration...\n";
             $files = scandir($this->migrationsPath);
             $toApplyMigrations = array_diff($files, ['.', '..', '.gitkeep']);
@@ -42,7 +35,32 @@ class Migration {
                 return pathinfo($file, PATHINFO_EXTENSION) === 'php';
             });
             
+            // Ordena as migrações
+            sort($phpMigrations);
+            
             echo "Migrations PHP para aplicar: " . implode(", ", $phpMigrations) . "\n";
+
+            // Primeiro executa a migração de reset se existir
+            foreach ($phpMigrations as $key => $migration) {
+                if (strpos($migration, 'reset_migrations') !== false) {
+                    echo "Executando migração de reset: $migration\n";
+                    require_once $this->migrationsPath . '/' . $migration;
+                    $className = $this->classNameMap[pathinfo($migration, PATHINFO_FILENAME)] ?? null;
+                    if ($className && class_exists($className)) {
+                        $migrationInstance = new $className();
+                        $migrationInstance->up();
+                    }
+                    unset($phpMigrations[$key]);
+                    break;
+                }
+            }
+
+            echo "Criando tabela de migrations...\n";
+            $this->createMigrationsTable();
+
+            echo "Obtendo migrations já aplicadas...\n";
+            $appliedMigrations = $this->getAppliedMigrations();
+            echo "Migrations já aplicadas: " . implode(", ", $appliedMigrations) . "\n";
 
             foreach ($phpMigrations as $migration) {
                 $baseName = pathinfo($migration, PATHINFO_FILENAME);
