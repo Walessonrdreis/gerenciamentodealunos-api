@@ -46,6 +46,14 @@ jobs:
         echo "DB_PASSWORD=$DB_PASSWORD" >> .env
         echo "JWT_SECRET=$JWT_SECRET" >> .env
         echo "CORS_ALLOW_ORIGIN=https://seoeads.com" >> .env
+        cat .env
+
+    - name: Run Migrations
+      run: |
+        echo "Iniciando migrações..."
+        ls -la database/migrations/
+        php database/migrate.php
+        echo "Migrações concluídas"
 
     - name: Deploy to Hostinger
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
@@ -68,8 +76,4 @@ jobs:
           README.md
           .env.example
           .env.production
-          phpunit.xml
-
-    - name: Run Migrations
-      run: |
-        php database/migrate.php 
+          phpunit.xml 
