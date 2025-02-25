@@ -9,10 +9,11 @@ class Database
 {
     private static ?Database $instance = null;
     private ?PDO $connection = null;
+    private bool $isDev;
 
     private function __construct()
     {
-        // Construtor privado para Singleton
+        $this->isDev = getenv('APP_ENV') === 'development';
     }
 
     public static function getInstance(): Database
@@ -40,10 +41,10 @@ class Database
                     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                     PDO::ATTR_EMULATE_PREPARES => false,
                 ]);
-
-                echo "Conexão com o banco de dados estabelecida com sucesso!\n";
             } catch (PDOException $e) {
-                throw new PDOException("Erro na conexão com o banco de dados: " . $e->getMessage());
+                throw new PDOException($this->isDev ? 
+                    "Erro na conexão com o banco de dados: " . $e->getMessage() : 
+                    "Erro na conexão com o banco de dados");
             }
         }
 

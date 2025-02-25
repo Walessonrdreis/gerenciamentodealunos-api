@@ -25,11 +25,6 @@ try {
         error_reporting(E_ALL);
     }
 
-    // Debug
-    error_log("Request URI: " . $_SERVER['REQUEST_URI']);
-    error_log("Request Method: " . $_SERVER['REQUEST_METHOD']);
-    error_log("Request Body: " . file_get_contents('php://input'));
-
     // Se for uma requisição OPTIONS, retornar apenas os headers
     if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
         http_response_code(200);

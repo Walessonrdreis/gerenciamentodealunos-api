@@ -5,6 +5,7 @@ class Migration {
     private \PDO $db;
     private string $migrationsPath;
     private string $seedsPath;
+    private bool $isDev;
 
     private array $classNameMap = [
         '001_create_users_table' => 'CreateUsersTable',
@@ -15,18 +16,25 @@ class Migration {
     ];
 
     public function __construct() {
-        echo "Iniciando construtor da Migration...\n";
+        $this->isDev = getenv('APP_ENV') === 'development';
         $this->db = Database::getInstance()->getConnection();
         $this->migrationsPath = __DIR__ . '/../../../database/migrations';
         $this->seedsPath = __DIR__ . '/../../../database/seeds';
-        echo "Caminhos configurados:\n";
-        echo "Migrations: {$this->migrationsPath}\n";
-        echo "Seeds: {$this->seedsPath}\n";
+        
+        if ($this->isDev) {
+            echo "Iniciando construtor da Migration...\n";
+            echo "Caminhos configurados:\n";
+            echo "Migrations: {$this->migrationsPath}\n";
+            echo "Seeds: {$this->seedsPath}\n";
+        }
     }
 
     public function runMigrations(): void {
         try {
-            echo "Verificando arquivos de migration...\n";
+            if ($this->isDev) {
+                echo "Verificando arquivos de migration...\n";
+            }
+            
             $files = scandir($this->migrationsPath);
             $toApplyMigrations = array_diff($files, ['.', '..', '.gitkeep']);
             
@@ -38,12 +46,16 @@ class Migration {
             // Ordena as migrações
             sort($phpMigrations);
             
-            echo "Migrations PHP para aplicar: " . implode(", ", $phpMigrations) . "\n";
+            if ($this->isDev) {
+                echo "Migrations PHP para aplicar: " . implode(", ", $phpMigrations) . "\n";
+            }
 
             // Primeiro executa a migração de reset se existir
             foreach ($phpMigrations as $key => $migration) {
                 if (strpos($migration, 'reset_migrations') !== false) {
-                    echo "Executando migração de reset: $migration\n";
+                    if ($this->isDev) {
+                        echo "Executando migração de reset: $migration\n";
+                    }
                     require_once $this->migrationsPath . '/' . $migration;
                     $className = $this->classNameMap[pathinfo($migration, PATHINFO_FILENAME)] ?? null;
                     if ($className && class_exists($className)) {
@@ -55,22 +67,32 @@ class Migration {
                 }
             }
 
-            echo "Criando tabela de migrations...\n";
+            if ($this->isDev) {
+                echo "Criando tabela de migrations...\n";
+            }
             $this->createMigrationsTable();
 
-            echo "Obtendo migrations já aplicadas...\n";
+            if ($this->isDev) {
+                echo "Obtendo migrations já aplicadas...\n";
+            }
             $appliedMigrations = $this->getAppliedMigrations();
-            echo "Migrations já aplicadas: " . implode(", ", $appliedMigrations) . "\n";
+            if ($this->isDev) {
+                echo "Migrations já aplicadas: " . implode(", ", $appliedMigrations) . "\n";
+            }
 
             foreach ($phpMigrations as $migration) {
                 $baseName = pathinfo($migration, PATHINFO_FILENAME);
                 if (!in_array($baseName, $appliedMigrations)) {
-                    echo "Aplicando migration: $migration\n";
+                    if ($this->isDev) {
+                        echo "Aplicando migration: $migration\n";
+                    }
                     require_once $this->migrationsPath . '/' . $migration;
                     
                     $className = $this->classNameMap[$baseName] ?? null;
                     if (!$className || !class_exists($className)) {
-                        echo "Aviso: Classe $className não encontrada no arquivo $migration\n";
+                        if ($this->isDev) {
+                            echo "Aviso: Classe $className não encontrada no arquivo $migration\n";
+                        }
                         continue;
                     }
                     
@@ -78,36 +100,53 @@ class Migration {
                     $migrationInstance->up();
                     
                     $this->logMigration($baseName);
-                    echo "Migration aplicada com sucesso: $migration\n";
+                    if ($this->isDev) {
+                        echo "Migration aplicada com sucesso: $migration\n";
+                    }
                 }
             }
         } catch (\Exception $e) {
-            echo "Erro ao executar migrações: " . $e->getMessage() . "\n";
-            echo "Stack trace: " . $e->getTraceAsString() . "\n";
+            if ($this->isDev) {
+                echo "Erro ao executar migrações: " . $e->getMessage() . "\n";
+                echo "Stack trace: " . $e->getTraceAsString() . "\n";
+            }
             throw $e;
         }
     }
 
     public function runSeeds(): void {
         try {
-            echo "Iniciando seeds...\n";
+            if ($this->isDev) {
+                echo "Iniciando seeds...\n";
+            }
+            
             $files = scandir($this->seedsPath);
             $seedFiles = array_diff($files, ['.', '..', '.gitkeep']);
-            echo "Seeds para executar: " . implode(", ", $seedFiles) . "\n";
+            
+            if ($this->isDev) {
+                echo "Seeds para executar: " . implode(", ", $seedFiles) . "\n";
+            }
 
             foreach ($seedFiles as $seed) {
-                echo "Executando seed: $seed\n";
+                if ($this->isDev) {
+                    echo "Executando seed: $seed\n";
+                }
+                
                 require_once $this->seedsPath . '/' . $seed;
                 
                 $className = pathinfo($seed, PATHINFO_FILENAME);
                 $seedInstance = new $className();
                 $seedInstance->run();
                 
-                echo "Seed executado com sucesso: $seed\n";
+                if ($this->isDev) {
+                    echo "Seed executado com sucesso: $seed\n";
+                }
             }
         } catch (\Exception $e) {
-            echo "Erro ao executar seeds: " . $e->getMessage() . "\n";
-            echo "Stack trace: " . $e->getTraceAsString() . "\n";
+            if ($this->isDev) {
+                echo "Erro ao executar seeds: " . $e->getMessage() . "\n";
+                echo "Stack trace: " . $e->getTraceAsString() . "\n";
+            }
             throw $e;
         }
     }

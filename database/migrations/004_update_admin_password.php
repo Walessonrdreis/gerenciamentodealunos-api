@@ -3,6 +3,12 @@
 use App\Core\Database\Database;
 
 class UpdateAdminPassword {
+    private bool $isDev;
+
+    public function __construct() {
+        $this->isDev = getenv('APP_ENV') === 'development';
+    }
+
     public function up() {
         $db = Database::getInstance()->getConnection();
 
@@ -13,14 +19,21 @@ class UpdateAdminPassword {
                 'admin@escola.com',
                 'admin'
             ]);
-            echo "Senha do usuário admin atualizada com sucesso!\n";
+            if ($this->isDev) {
+                echo "Senha do usuário admin atualizada com sucesso!\n";
+            }
         } catch (\PDOException $e) {
-            echo "Erro ao atualizar senha do usuário admin: " . $e->getMessage() . "\n";
+            if ($this->isDev) {
+                echo "Erro ao atualizar senha do usuário admin: " . $e->getMessage() . "\n";
+            }
+            throw $e;
         }
     }
 
     public function down() {
         // Não há necessidade de reverter esta migração
-        echo "Nada a fazer no down desta migração.\n";
+        if ($this->isDev) {
+            echo "Nada a fazer no down desta migração.\n";
+        }
     }
 } 

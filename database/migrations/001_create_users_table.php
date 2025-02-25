@@ -3,6 +3,12 @@
 use App\Core\Database\Database;
 
 class CreateUsersTable {
+    private bool $isDev;
+
+    public function __construct() {
+        $this->isDev = getenv('APP_ENV') === 'development';
+    }
+
     public function up() {
         $db = Database::getInstance()->getConnection();
 
@@ -19,9 +25,14 @@ class CreateUsersTable {
 
         try {
             $db->exec($sql);
-            echo "Tabela 'users' criada com sucesso!\n";
+            if ($this->isDev) {
+                echo "Tabela 'users' criada com sucesso!\n";
+            }
         } catch (\PDOException $e) {
-            echo "Erro ao criar tabela 'users': " . $e->getMessage() . "\n";
+            if ($this->isDev) {
+                echo "Erro ao criar tabela 'users': " . $e->getMessage() . "\n";
+            }
+            throw $e;
         }
     }
 
@@ -32,9 +43,14 @@ class CreateUsersTable {
 
         try {
             $db->exec($sql);
-            echo "Tabela 'users' removida com sucesso!\n";
+            if ($this->isDev) {
+                echo "Tabela 'users' removida com sucesso!\n";
+            }
         } catch (\PDOException $e) {
-            echo "Erro ao remover tabela 'users': " . $e->getMessage() . "\n";
+            if ($this->isDev) {
+                echo "Erro ao remover tabela 'users': " . $e->getMessage() . "\n";
+            }
+            throw $e;
         }
     }
 } 

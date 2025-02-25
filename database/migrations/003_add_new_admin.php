@@ -3,6 +3,12 @@
 use App\Core\Database\Database;
 
 class AddNewAdmin {
+    private bool $isDev;
+
+    public function __construct() {
+        $this->isDev = getenv('APP_ENV') === 'development';
+    }
+
     public function up() {
         $db = Database::getInstance()->getConnection();
 
@@ -13,7 +19,9 @@ class AddNewAdmin {
             $count = $stmt->fetchColumn();
 
             if ($count > 0) {
-                echo "Usuário admin já existe, pulando criação.\n";
+                if ($this->isDev) {
+                    echo "Usuário admin já existe, pulando criação.\n";
+                }
                 return;
             }
 
@@ -34,9 +42,14 @@ class AddNewAdmin {
                 'admin',
                 'active'
             ]);
-            echo "Novo usuário admin criado com sucesso!\n";
+            if ($this->isDev) {
+                echo "Novo usuário admin criado com sucesso!\n";
+            }
         } catch (\PDOException $e) {
-            echo "Erro ao criar novo usuário admin: " . $e->getMessage() . "\n";
+            if ($this->isDev) {
+                echo "Erro ao criar novo usuário admin: " . $e->getMessage() . "\n";
+            }
+            throw $e;
         }
     }
 
@@ -46,9 +59,14 @@ class AddNewAdmin {
         try {
             $stmt = $db->prepare("DELETE FROM users WHERE email = ?");
             $stmt->execute(['admin@escola.com']);
-            echo "Usuário admin removido com sucesso!\n";
+            if ($this->isDev) {
+                echo "Usuário admin removido com sucesso!\n";
+            }
         } catch (\PDOException $e) {
-            echo "Erro ao remover usuário admin: " . $e->getMessage() . "\n";
+            if ($this->isDev) {
+                echo "Erro ao remover usuário admin: " . $e->getMessage() . "\n";
+            }
+            throw $e;
         }
     }
 } 

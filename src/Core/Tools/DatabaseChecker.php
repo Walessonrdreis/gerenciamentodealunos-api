@@ -9,9 +9,11 @@ use Dotenv\Dotenv;
 class DatabaseChecker
 {
     private PDO $conn;
+    private bool $isDev;
 
     public function __construct()
     {
+        $this->isDev = getenv('APP_ENV') === 'development';
         $this->loadEnvironment();
         $this->connect();
     }
@@ -26,14 +28,15 @@ class DatabaseChecker
     {
         try {
             $this->conn = new PDO(
-                "mysql:host=" . getenv('DB_HOST') . ";dbname=" . getenv('DB_NAME'),
-                getenv('DB_USER'),
-                getenv('DB_PASS')
+                "mysql:host=" . getenv('DB_HOST') . ";dbname=" . getenv('DB_DATABASE'),
+                getenv('DB_USERNAME'),
+                getenv('DB_PASSWORD')
             );
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            echo "Conexão com o banco de dados estabelecida com sucesso!\n";
         } catch (PDOException $e) {
-            echo "Erro de conexão: " . $e->getMessage() . "\n";
+            if ($this->isDev) {
+                error_log("Erro de conexão: " . $e->getMessage());
+            }
             exit(1);
         }
     }
@@ -60,7 +63,7 @@ class DatabaseChecker
         } catch (PDOException $e) {
             return [
                 'success' => false,
-                'error' => $e->getMessage()
+                'error' => $this->isDev ? $e->getMessage() : 'Erro ao verificar tabela'
             ];
         }
     }
@@ -94,7 +97,7 @@ class DatabaseChecker
         } catch (PDOException $e) {
             return [
                 'success' => false,
-                'error' => $e->getMessage()
+                'error' => $this->isDev ? $e->getMessage() : 'Erro ao verificar usuário'
             ];
         }
     }

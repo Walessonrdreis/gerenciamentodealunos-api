@@ -3,6 +3,12 @@
 use App\Core\Database\Database;
 
 class CreateAlunosTable {
+    private bool $isDev;
+
+    public function __construct() {
+        $this->isDev = getenv('APP_ENV') === 'development';
+    }
+
     public function up() {
         $db = Database::getInstance()->getConnection();
 
@@ -27,7 +33,9 @@ class CreateAlunosTable {
 
         try {
             $db->exec($sql);
-            echo "Tabela 'alunos' criada com sucesso!\n";
+            if ($this->isDev) {
+                echo "Tabela 'alunos' criada com sucesso!\n";
+            }
 
             // Criar alguns alunos de exemplo
             $sql = "INSERT IGNORE INTO alunos (nome, email, data_nascimento, cpf, telefone, cidade, estado) VALUES 
@@ -35,9 +43,14 @@ class CreateAlunosTable {
                 ('Maria Santos', 'maria@escola.com', '2001-02-02', '987.654.321-00', '(11) 91234-5678', 'Rio de Janeiro', 'RJ')";
             
             $db->exec($sql);
-            echo "Alunos de exemplo criados com sucesso!\n";
+            if ($this->isDev) {
+                echo "Alunos de exemplo criados com sucesso!\n";
+            }
         } catch (\PDOException $e) {
-            echo "Erro ao criar tabela 'alunos': " . $e->getMessage() . "\n";
+            if ($this->isDev) {
+                echo "Erro ao criar tabela 'alunos': " . $e->getMessage() . "\n";
+            }
+            throw $e;
         }
     }
 
@@ -48,9 +61,14 @@ class CreateAlunosTable {
 
         try {
             $db->exec($sql);
-            echo "Tabela 'alunos' removida com sucesso!\n";
+            if ($this->isDev) {
+                echo "Tabela 'alunos' removida com sucesso!\n";
+            }
         } catch (\PDOException $e) {
-            echo "Erro ao remover tabela 'alunos': " . $e->getMessage() . "\n";
+            if ($this->isDev) {
+                echo "Erro ao remover tabela 'alunos': " . $e->getMessage() . "\n";
+            }
+            throw $e;
         }
     }
 } 
