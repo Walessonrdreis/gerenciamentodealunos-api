@@ -1,7 +1,5 @@
 <?php
 
-namespace Database\Migrations;
-
 use App\Core\Database\Database;
 
 class ResetMigrations {
