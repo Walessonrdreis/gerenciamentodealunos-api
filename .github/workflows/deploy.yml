@@ -40,10 +40,10 @@ jobs:
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         JWT_SECRET: ${{ secrets.JWT_SECRET }}
       run: |
-        echo "DB_HOST=127.0.0.1" > .env
+        echo "DB_HOST=62.72.62.253" > .env
         echo "DB_PORT=3306" >> .env
         echo "DB_DATABASE=u492226363_school" >> .env
-        echo "DB_USERNAME=u492226363_admin" >> .env
+        echo "DB_USERNAME=u492226363.deploy" >> .env
         echo "DB_PASSWORD=$DB_PASSWORD" >> .env
         echo "JWT_SECRET=$JWT_SECRET" >> .env
         echo "CORS_ALLOW_ORIGIN=https://seoeads.com" >> .env
@@ -54,7 +54,7 @@ jobs:
         server: 62.72.62.253
         username: u492226363.deploy
         password: ${{ secrets.FTP_PASSWORD }}
-        server-dir: /api/
+        server-dir: /
         protocol: ftp
         port: 21
         security: loose
