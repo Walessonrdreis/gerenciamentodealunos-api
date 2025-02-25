@@ -42,9 +42,9 @@ class UserController {
             }
 
             $senha = password_hash($data['senha'], PASSWORD_DEFAULT);
-            $role = isset($data['role']) ? $data['role'] : 'aluno';
+            $role = isset($data['role']) ? $data['role'] : 'student';
             
-            $stmt = $this->db->prepare("INSERT INTO users (name, email, senha, role) VALUES (?, ?, ?, ?)");
+            $stmt = $this->db->prepare("INSERT INTO users (name, email, senha, role, status) VALUES (?, ?, ?, ?, 'active')");
             $stmt->execute([$data['name'], $data['email'], $senha, $role]);
 
             http_response_code(201);
