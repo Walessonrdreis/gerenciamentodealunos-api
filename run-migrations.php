@@ -2,34 +2,16 @@
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-use App\Core\Config\DotEnv;
+use App\Core\Database\Scripts\RunMigrations;
 
-// Carregar variáveis de ambiente
-(new DotEnv(__DIR__ . '/.env'))->load();
+header('Content-Type: application/json');
 
-// Verificar senha de migração
 $migrationKey = $_GET['key'] ?? '';
-if ($migrationKey !== getenv('JWT_SECRET')) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Chave de migração inválida']);
-    exit;
+$runner = new RunMigrations($migrationKey);
+$result = $runner->execute();
+
+if (!$result['success']) {
+    http_response_code(400);
 }
 
-try {
-    ob_start(); // Captura a saída do script
-    require_once __DIR__ . '/database/migrate.php';
-    $output = ob_get_clean(); // Pega a saída capturada
-    
-    echo json_encode([
-        'success' => true, 
-        'message' => 'Migrações executadas com sucesso',
-        'details' => $output
-    ]);
-} catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode([
-        'error' => 'Erro ao executar migrações',
-        'message' => $e->getMessage(),
-        'details' => $e->getTraceAsString()
-    ]);
-} 
+echo json_encode($result); 
