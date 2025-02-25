@@ -34,6 +34,12 @@ jobs:
         composer install --no-dev --prefer-dist --no-progress --optimize-autoloader
         composer dump-autoload --optimize
 
+    - name: Setup Production Environment
+      run: |
+        cp .env.production .env
+        sed -i "s/\${{ secrets.DB_PASSWORD }}/${{ secrets.DB_PASSWORD }}/g" .env
+        sed -i "s/\${{ secrets.JWT_SECRET }}/${{ secrets.JWT_SECRET }}/g" .env
+
     - name: Deploy to Hostinger
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
       with:
@@ -54,4 +60,5 @@ jobs:
           **/tests/**
           README.md
           .env.example
+          .env.production
           phpunit.xml 
