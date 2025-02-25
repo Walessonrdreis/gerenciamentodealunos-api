@@ -7,10 +7,23 @@ class AddNewAdmin {
         $db = Database::getInstance()->getConnection();
 
         try {
-            // Criar novo usuário admin
-            $senha = password_hash('123456', PASSWORD_DEFAULT);
-            $stmt = $db->prepare("INSERT INTO users (nome, email, senha, tipo) VALUES (?, ?, ?, ?)");
-            $stmt->execute(['Administrador', 'admin@escola.com', $senha, 'admin']);
+            $uuid = sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+                mt_rand(0, 0xffff), mt_rand(0, 0xffff),
+                mt_rand(0, 0xffff),
+                mt_rand(0, 0x0fff) | 0x4000,
+                mt_rand(0, 0x3fff) | 0x8000,
+                mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
+            );
+
+            $stmt = $db->prepare("INSERT INTO users (id, name, email, password, role, status) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt->execute([
+                $uuid,
+                'Administrador',
+                'admin@escola.com',
+                password_hash('123456', PASSWORD_DEFAULT),
+                'admin',
+                'active'
+            ]);
             echo "Novo usuário admin criado com sucesso!\n";
         } catch (\PDOException $e) {
             echo "Erro ao criar novo usuário admin: " . $e->getMessage() . "\n";
@@ -23,9 +36,9 @@ class AddNewAdmin {
         try {
             $stmt = $db->prepare("DELETE FROM users WHERE email = ?");
             $stmt->execute(['admin@escola.com']);
-            echo "Novo usuário admin removido com sucesso!\n";
+            echo "Usuário admin removido com sucesso!\n";
         } catch (\PDOException $e) {
-            echo "Erro ao remover novo usuário admin: " . $e->getMessage() . "\n";
+            echo "Erro ao remover usuário admin: " . $e->getMessage() . "\n";
         }
     }
 } 

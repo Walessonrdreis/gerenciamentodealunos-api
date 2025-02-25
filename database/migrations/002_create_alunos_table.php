@@ -19,7 +19,7 @@ class CreateAlunosTable {
             cep VARCHAR(9),
             status ENUM('ativo', 'inativo', 'trancado') NOT NULL DEFAULT 'ativo',
             observacoes TEXT,
-            user_id INT,
+            user_id VARCHAR(36),
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL

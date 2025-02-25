@@ -7,12 +7,12 @@ class CreateUsersTable {
         $db = Database::getInstance()->getConnection();
 
         $sql = "CREATE TABLE IF NOT EXISTS users (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            nome VARCHAR(255) NOT NULL,
+            id VARCHAR(36) PRIMARY KEY,
+            name VARCHAR(255) NOT NULL,
             email VARCHAR(255) NOT NULL UNIQUE,
-            senha VARCHAR(255) NOT NULL,
-            tipo ENUM('admin', 'professor', 'aluno') NOT NULL DEFAULT 'aluno',
-            status BOOLEAN NOT NULL DEFAULT TRUE,
+            password VARCHAR(255) NOT NULL,
+            role ENUM('admin', 'teacher', 'student') NOT NULL DEFAULT 'student',
+            status ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         )";
@@ -23,7 +23,7 @@ class CreateUsersTable {
 
             // Criar usuário admin padrão
             $senha = password_hash('admin123', PASSWORD_DEFAULT);
-            $stmt = $db->prepare("INSERT INTO users (nome, email, senha, tipo) VALUES (?, ?, ?, ?)");
+            $stmt = $db->prepare("INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)");
             $stmt->execute(['Administrador', 'admin@seoeads.com', $senha, 'admin']);
             echo "Usuário admin criado com sucesso!\n";
         } catch (\PDOException $e) {
