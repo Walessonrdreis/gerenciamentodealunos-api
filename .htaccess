@@ -1,23 +1,32 @@
-# Habilita o mod_rewrite
+# Habilitar mod_rewrite
 RewriteEngine On
+
+# Definir base para as regras de rewrite
 RewriteBase /api/
 
-# Redireciona todas as requisições para o index.php
+# Redirecionar todas as requisições para o index.php
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php [QSA,L]
 
-# Configurações de CORS
+# Configurações CORS
 Header set Access-Control-Allow-Origin "*"
 Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
 Header set Access-Control-Allow-Headers "Content-Type, Authorization"
 Header set Access-Control-Allow-Credentials "true"
 
-# Retorna 200 para requisições OPTIONS
-RewriteCond %{REQUEST_METHOD} OPTIONS
-RewriteRule ^(.*)$ $1 [R=200,L]
-
-# Headers de segurança
+# Configurações de segurança
 Header set X-Content-Type-Options "nosniff"
 Header set X-XSS-Protection "1; mode=block"
-Header set X-Frame-Options "SAMEORIGIN" 
+Header set X-Frame-Options "SAMEORIGIN"
+
+# Prevenir listagem de diretórios
+Options -Indexes
+
+# Forçar HTTPS
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Retorna 200 para requisições OPTIONS
+RewriteCond %{REQUEST_METHOD} OPTIONS
+RewriteRule ^(.*)$ $1 [R=200,L] 
