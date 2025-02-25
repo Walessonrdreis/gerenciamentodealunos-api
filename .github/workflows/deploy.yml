@@ -34,26 +34,19 @@ jobs:
       run: |
         composer install --no-dev --prefer-dist --no-progress --optimize-autoloader
         composer dump-autoload --optimize
+
     - name: Setup Production Environment
       env:
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         JWT_SECRET: ${{ secrets.JWT_SECRET }}
       run: |
-        echo "DB_HOST=62.72.62.253" > .env
+        echo "DB_HOST=127.0.0.1" > .env
         echo "DB_PORT=3306" >> .env
         echo "DB_DATABASE=u492226363_school" >> .env
         echo "DB_USERNAME=u492226363_admin" >> .env
         echo "DB_PASSWORD=$DB_PASSWORD" >> .env
         echo "JWT_SECRET=$JWT_SECRET" >> .env
         echo "CORS_ALLOW_ORIGIN=https://seoeads.com" >> .env
-        cat .env
-
-    - name: Run Migrations
-      run: |
-        echo "Iniciando migrações..."
-        ls -la database/migrations/
-        php database/migrate.php
-        echo "Migrações concluídas"
 
     - name: Deploy to Hostinger
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
@@ -76,4 +69,15 @@ jobs:
           README.md
           .env.example
           .env.production
-          phpunit.xml 
+          phpunit.xml
+
+    - name: Run Migrations on Server
+      uses: appleboy/ssh-action@master
+      with:
+        host: 62.72.62.253
+        username: u492226363.deploy
+        password: ${{ secrets.FTP_PASSWORD }}
+        port: 65002
+        script: |
+          cd /api
+          php database/migrate.php 
