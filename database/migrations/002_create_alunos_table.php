@@ -30,41 +30,11 @@ class CreateAlunosTable {
             echo "Tabela 'alunos' criada com sucesso!\n";
 
             // Criar alguns alunos de exemplo
-            $alunos = [
-                [
-                    'nome' => 'João da Silva',
-                    'email' => 'joao@escola.com',
-                    'data_nascimento' => '2000-01-01',
-                    'cpf' => '123.456.789-00',
-                    'telefone' => '(11) 98765-4321',
-                    'cidade' => 'São Paulo',
-                    'estado' => 'SP'
-                ],
-                [
-                    'nome' => 'Maria Santos',
-                    'email' => 'maria@escola.com',
-                    'data_nascimento' => '2001-02-02',
-                    'cpf' => '987.654.321-00',
-                    'telefone' => '(11) 91234-5678',
-                    'cidade' => 'Rio de Janeiro',
-                    'estado' => 'RJ'
-                ]
-            ];
-
-            $stmt = $db->prepare("INSERT INTO alunos (nome, email, data_nascimento, cpf, telefone, cidade, estado) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $sql = "INSERT IGNORE INTO alunos (nome, email, data_nascimento, cpf, telefone, cidade, estado) VALUES 
+                ('João da Silva', 'joao@escola.com', '2000-01-01', '123.456.789-00', '(11) 98765-4321', 'São Paulo', 'SP'),
+                ('Maria Santos', 'maria@escola.com', '2001-02-02', '987.654.321-00', '(11) 91234-5678', 'Rio de Janeiro', 'RJ')";
             
-            foreach ($alunos as $aluno) {
-                $stmt->execute([
-                    $aluno['nome'],
-                    $aluno['email'],
-                    $aluno['data_nascimento'],
-                    $aluno['cpf'],
-                    $aluno['telefone'],
-                    $aluno['cidade'],
-                    $aluno['estado']
-                ]);
-            }
-            
+            $db->exec($sql);
             echo "Alunos de exemplo criados com sucesso!\n";
         } catch (\PDOException $e) {
             echo "Erro ao criar tabela 'alunos': " . $e->getMessage() . "\n";
