@@ -38,9 +38,14 @@ class Router
         error_log("Method: " . $method);
         error_log("Original Path: " . $path);
         
-        // Remover o prefixo /applications/escola/api
+        // Remover o prefixo /api e garantir que o path comece com /
         $path = preg_replace('/^.*\/api/', '', $path);
-        error_log("Path após remover prefixo: " . $path);
+        if (empty($path)) {
+            $path = '/';
+        } elseif ($path[0] !== '/') {
+            $path = '/' . $path;
+        }
+        error_log("Path normalizado: " . $path);
         
         // Debug das rotas disponíveis
         error_log("Rotas registradas para " . $method . ":");
@@ -48,6 +53,7 @@ class Router
             error_log("  - " . $route);
         }
         
+        // Verificar rota exata
         if (isset($this->routes[$method][$path])) {
             error_log("Rota encontrada: " . $path);
             $handler = $this->routes[$method][$path];
@@ -61,6 +67,27 @@ class Router
             }
             
             return;
+        }
+
+        // Verificar rotas com parâmetros
+        foreach ($this->routes[$method] ?? [] as $route => $handler) {
+            $pattern = preg_replace('/\{[^}]+\}/', '([^/]+)', $route);
+            $pattern = str_replace('/', '\/', $pattern);
+            $pattern = '/^' . $pattern . '$/';
+            
+            if (preg_match($pattern, $path, $matches)) {
+                array_shift($matches); // Remove o match completo
+                
+                if (is_array($handler)) {
+                    [$controller, $method] = $handler;
+                    error_log("Executando controller com parâmetros: " . get_class($controller) . "@" . $method);
+                    $controller->$method(...$matches);
+                } else {
+                    $handler(...$matches);
+                }
+                
+                return;
+            }
         }
 
         // Rota não encontrada
