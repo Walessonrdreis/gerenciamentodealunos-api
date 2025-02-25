@@ -32,6 +32,8 @@ class AuthController
             error_log("Dados do usuário: " . print_r($user, true));
             error_log("Senha fornecida: " . $data['senha']);
             error_log("Hash armazenado: " . ($user ? $user['senha'] : 'usuário não encontrado'));
+            error_log("Colunas disponíveis: " . implode(", ", array_keys($user ?? [])));
+            error_log("Resultado do password_verify: " . (password_verify($data['senha'], $user['senha'] ?? '') ? 'true' : 'false'));
 
             if (!$user || !password_verify($data['senha'], $user['senha'])) {
                 http_response_code(401);
