@@ -8,6 +8,10 @@ class ApiRoutesTest extends TestCase
 {
     private $client;
     private $baseUri = 'https://seoeads.com';
+    private $adminCredentials = [
+        'email' => 'admin@escola.com',
+        'password' => '123456'
+    ];
 
     protected function setUp(): void
     {
@@ -34,40 +38,41 @@ class ApiRoutesTest extends TestCase
         return json_decode($jsonString, true);
     }
 
-    public function testLoginRoute()
+    public function testAdminLoginRoute()
     {
         $response = $this->client->post('/api/auth/login', [
-            'json' => [
-                'username' => 'testuser',
-                'password' => 'testpassword'
-            ]
+            'json' => $this->adminCredentials
         ]);
 
         $statusCode = $response->getStatusCode();
         $body = $response->getBody()->getContents();
         
-        echo "\nResponse Status: " . $statusCode;
-        echo "\nResponse Body: " . $body . "\n";
+        echo "\nAdmin Login Response Status: " . $statusCode;
+        echo "\nAdmin Login Response Body: " . $body . "\n";
 
         $this->assertEquals(200, $statusCode);
         
         $responseData = $this->extractJsonFromResponse($body);
         $this->assertNotNull($responseData, "Could not extract JSON from response: " . $body);
         $this->assertArrayHasKey('token', $responseData);
+        
+        // Verificar se há informações adicionais do usuário na resposta
+        if (isset($responseData['user'])) {
+            $this->assertEquals('admin@escola.com', $responseData['user']['email']);
+            $this->assertEquals('admin', $responseData['user']['role']);
+            $this->assertEquals('active', $responseData['user']['status']);
+        }
     }
 
-    public function testVerifyTokenRoute()
+    public function testAdminVerifyTokenRoute()
     {
-        // Primeiro, fazer login para obter um token
+        // Primeiro, fazer login como admin
         $loginResponse = $this->client->post('/api/auth/login', [
-            'json' => [
-                'username' => 'testuser',
-                'password' => 'testpassword'
-            ]
+            'json' => $this->adminCredentials
         ]);
 
         $loginBody = $loginResponse->getBody()->getContents();
-        echo "\nLogin Response: " . $loginBody . "\n";
+        echo "\nAdmin Login Response: " . $loginBody . "\n";
         
         $loginData = $this->extractJsonFromResponse($loginBody);
         $this->assertNotNull($loginData, "Could not extract JSON from login response: " . $loginBody);
@@ -75,7 +80,7 @@ class ApiRoutesTest extends TestCase
         
         $token = $loginData['token'];
 
-        // Agora, testar a rota de verificação do token
+        // Verificar o token
         $response = $this->client->get('/api/auth/verify', [
             'headers' => [
                 'Authorization' => 'Bearer ' . $token
@@ -93,14 +98,22 @@ class ApiRoutesTest extends TestCase
         $responseData = $this->extractJsonFromResponse($body);
         $this->assertNotNull($responseData, "Could not extract JSON from response: " . $body);
         $this->assertArrayHasKey('success', $responseData);
+        
+        // Verificar informações do usuário no payload do token
+        if (isset($responseData['user'])) {
+            $userData = $responseData['user'];
+            $this->assertArrayHasKey('data', $userData);
+            $this->assertEquals('admin@escola.com', $userData['data']['email'] ?? null);
+            $this->assertEquals('admin', $userData['data']['role'] ?? null);
+        }
     }
 
     public function testInvalidLoginCredentials()
     {
         $response = $this->client->post('/api/auth/login', [
             'json' => [
-                'username' => 'invalid',
-                'password' => 'invalid'
+                'email' => 'invalid@email.com',
+                'password' => 'wrongpassword'
             ]
         ]);
 
@@ -109,6 +122,27 @@ class ApiRoutesTest extends TestCase
         
         echo "\nInvalid Login Response Status: " . $statusCode;
         echo "\nInvalid Login Response Body: " . $body . "\n";
+
+        $this->assertEquals(401, $statusCode);
+        
+        $responseData = $this->extractJsonFromResponse($body);
+        $this->assertNotNull($responseData, "Could not extract JSON from response: " . $body);
+        $this->assertArrayHasKey('error', $responseData);
+    }
+
+    public function testInvalidToken()
+    {
+        $response = $this->client->get('/api/auth/verify', [
+            'headers' => [
+                'Authorization' => 'Bearer invalidtoken123'
+            ]
+        ]);
+
+        $statusCode = $response->getStatusCode();
+        $body = $response->getBody()->getContents();
+        
+        echo "\nInvalid Token Response Status: " . $statusCode;
+        echo "\nInvalid Token Response Body: " . $body . "\n";
 
         $this->assertEquals(401, $statusCode);
         

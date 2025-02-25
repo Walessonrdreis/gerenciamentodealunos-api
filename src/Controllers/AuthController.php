@@ -20,27 +20,51 @@ class AuthController
         try {
             $data = json_decode(file_get_contents('php://input'), true);
             
-            // Verificar credenciais (exemplo simplificado)
-            if ($data['username'] === 'testuser' && $data['password'] === 'testpassword') {
-                $payload = [
-                    'iss' => 'https://seoeads.com',
-                    'aud' => 'https://seoeads.com',
-                    'iat' => time(),
-                    'nbf' => time(),
-                    'exp' => time() + 3600,
-                    'data' => [
-                        'username' => $data['username']
-                    ]
-                ];
+            if (!isset($data['email']) || !isset($data['password'])) {
+                http_response_code(400);
+                echo json_encode(['error' => 'Email e senha são obrigatórios']);
+                return;
+            }
 
-                $jwt = JWT::encode($payload, getenv('JWT_SECRET'), 'HS256');
+            // Buscar usuário no banco de dados
+            $stmt = $this->db->prepare("SELECT * FROM users WHERE email = ? AND status = 'active'");
+            $stmt->execute([$data['email']]);
+            $user = $stmt->fetch(\PDO::FETCH_ASSOC);
 
-                echo json_encode(['token' => $jwt]);
-            } else {
+            if (!$user || !password_verify($data['password'], $user['password'])) {
                 http_response_code(401);
                 echo json_encode(['error' => 'Credenciais inválidas']);
+                return;
             }
-        } catch (Exception $e) {
+
+            // Gerar token JWT
+            $payload = [
+                'iss' => 'https://seoeads.com',
+                'aud' => 'https://seoeads.com',
+                'iat' => time(),
+                'nbf' => time(),
+                'exp' => time() + 86400, // 24 horas
+                'data' => [
+                    'id' => $user['id'],
+                    'email' => $user['email'],
+                    'name' => $user['name'],
+                    'role' => $user['role']
+                ]
+            ];
+
+            $jwt = JWT::encode($payload, getenv('JWT_SECRET'), 'HS256');
+
+            // Remover senha antes de retornar
+            unset($user['password']);
+
+            echo json_encode([
+                'success' => true,
+                'message' => 'Login realizado com sucesso',
+                'token' => $jwt,
+                'user' => $user
+            ]);
+        } catch (\Exception $e) {
+            error_log("Erro no login: " . $e->getMessage());
             http_response_code(500);
             echo json_encode(['error' => 'Erro interno do servidor']);
         }
