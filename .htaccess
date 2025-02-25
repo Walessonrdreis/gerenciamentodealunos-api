@@ -1,12 +1,11 @@
-# Desabilita o processamento do WordPress
+# Habilita o mod_rewrite
 RewriteEngine On
 RewriteBase /api/
 
-# Previne o WordPress de processar este diretório
-RewriteCond %{REQUEST_URI} ^/api/
+# Redireciona todas as requisições para o index.php
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^ index.php [QSA,L]
+RewriteRule ^(.*)$ index.php [QSA,L]
 
 # Configurações de CORS
 Header set Access-Control-Allow-Origin "*"
