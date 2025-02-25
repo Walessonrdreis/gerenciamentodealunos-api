@@ -26,6 +26,7 @@ class AuthController
             }
 
             $stmt = $this->db->prepare("SELECT * FROM users WHERE email = ? AND status = 'active'");
+            error_log("Query SQL: SELECT * FROM users WHERE email = '" . $data['email'] . "' AND status = 'active'");
             $stmt->execute([$data['email']]);
             $user = $stmt->fetch(\PDO::FETCH_ASSOC);
 
