@@ -26,9 +26,9 @@ class UserController {
         try {
             $data = json_decode(file_get_contents('php://input'), true);
             
-            if (!isset($data['name']) || !isset($data['email']) || !isset($data['senha'])) {
+            if (!isset($data['name']) || !isset($data['email']) || !isset($data['password'])) {
                 http_response_code(400);
-                echo json_encode(['error' => 'Name, email e senha são obrigatórios']);
+                echo json_encode(['error' => 'Name, email e password são obrigatórios']);
                 return;
             }
 
@@ -50,10 +50,10 @@ class UserController {
                 return;
             }
 
-            $senha = password_hash($data['senha'], PASSWORD_DEFAULT);
+            $password = password_hash($data['password'], PASSWORD_DEFAULT);
             
-            $stmt = $this->db->prepare("INSERT INTO users (name, email, senha, role, status) VALUES (?, ?, ?, ?, 'active')");
-            $stmt->execute([$data['name'], $data['email'], $senha, $role]);
+            $stmt = $this->db->prepare("INSERT INTO users (name, email, password, role, status) VALUES (?, ?, ?, ?, 'active')");
+            $stmt->execute([$data['name'], $data['email'], $password, $role]);
 
             http_response_code(201);
             echo json_encode([
@@ -118,9 +118,9 @@ class UserController {
                 $valores[] = $data['email'];
             }
             
-            if (isset($data['senha'])) {
-                $campos[] = "senha = ?";
-                $valores[] = password_hash($data['senha'], PASSWORD_DEFAULT);
+            if (isset($data['password'])) {
+                $campos[] = "password = ?";
+                $valores[] = password_hash($data['password'], PASSWORD_DEFAULT);
             }
             
             if (isset($data['role'])) {
