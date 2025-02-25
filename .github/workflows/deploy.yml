@@ -1,4 +1,4 @@
-name: Deploy via FTP
+name: Deploy to Production
 
 # Configuração de deploy com credenciais atualizadas
 on:
@@ -69,7 +69,7 @@ jobs:
           README.md
           .env.example
           .env.production
-          phpunit.xml 
+          phpunit.xml
 
     - name: Run Migrations
       run: |
