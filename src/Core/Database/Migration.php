@@ -45,9 +45,7 @@ class Migration {
 
             foreach ($phpMigrations as $migration) {
                 $baseName = pathinfo($migration, PATHINFO_FILENAME);
-                if (!in_array($baseName, array_map(function($m) { 
-                    return pathinfo($m, PATHINFO_FILENAME); 
-                }, $appliedMigrations))) {
+                if (!in_array($baseName, $appliedMigrations)) {
                     echo "Aplicando migration: $migration\n";
                     require_once $this->migrationsPath . '/' . $migration;
                     
@@ -108,7 +106,12 @@ class Migration {
     private function getAppliedMigrations(): array {
         $statement = $this->db->prepare("SELECT migration FROM migrations");
         $statement->execute();
-        return $statement->fetchAll(\PDO::FETCH_COLUMN);
+        $migrations = $statement->fetchAll(\PDO::FETCH_COLUMN);
+        
+        // Remove a extensão dos nomes das migrações
+        return array_map(function($migration) {
+            return pathinfo($migration, PATHINFO_FILENAME);
+        }, $migrations);
     }
 
     private function logMigration(string $migration): void {
