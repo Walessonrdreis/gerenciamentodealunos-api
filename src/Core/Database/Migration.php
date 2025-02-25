@@ -8,11 +8,11 @@ class Migration {
     private bool $isDev;
 
     private array $classNameMap = [
-        '001_create_users_table' => 'CreateUsersTable',
-        '002_create_alunos_table' => 'CreateAlunosTable',
-        '003_add_new_admin' => 'AddNewAdmin',
-        '004_update_admin_password' => 'UpdateAdminPassword',
-        '005_reset_migrations' => 'ResetMigrations'
+        '001_create_users_table' => 'Database\\Migrations\\CreateUsersTable',
+        '002_create_alunos_table' => 'Database\\Migrations\\CreateAlunosTable',
+        '003_add_new_admin' => 'Database\\Migrations\\AddNewAdmin',
+        '004_update_admin_password' => 'Database\\Migrations\\UpdateAdminPassword',
+        '005_reset_migrations' => 'Database\\Migrations\\ResetMigrations'
     ];
 
     public function __construct() {
