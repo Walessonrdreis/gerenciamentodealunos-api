@@ -17,7 +17,7 @@ jobs:
         server: 62.72.62.253
         username: u492226363.deploy
         password: ${{ secrets.FTP_PASSWORD }}
-        server-dir: /public_html/api/
+        server-dir: /api/
         protocol: ftp
         port: 21
         security: loose
