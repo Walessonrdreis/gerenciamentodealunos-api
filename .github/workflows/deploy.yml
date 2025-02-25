@@ -11,23 +11,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Clean old API folder
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-      with:
-        server: 62.72.62.253
-        username: u492226363.deploy
-        password: ${{ secrets.FTP_PASSWORD }}
-        server-dir: /public_html/api/
-        protocol: ftp
-        port: 21
-        security: loose
-        dangerous-clean-slate: true
-        log-level: verbose
-        timeout: 60000
-        exclude: |
-          **/*
-
-    - name: Deploy to correct location
+    - name: Deploy to Hostinger
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
       with:
         server: 62.72.62.253
