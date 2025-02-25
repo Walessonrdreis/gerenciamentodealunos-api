@@ -14,10 +14,10 @@ jobs:
     - name: Deploy to Hostinger
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
       with:
-        server: ${{ secrets.FTP_SERVER }}
-        username: ${{ secrets.FTP_USERNAME }}
+        server: ftp.seoeads.com
+        username: u492226363.deploy
         password: ${{ secrets.FTP_PASSWORD }}
-        server-dir: /api/
+        server-dir: /public_html/api/
         protocol: ftp
         port: 21
         security: loose
