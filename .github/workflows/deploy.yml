@@ -1,5 +1,6 @@
 name: Deploy via FTP
 
+# Configuração de deploy com credenciais atualizadas
 on:
   push:
     branches: [ main ]
@@ -39,7 +40,6 @@ jobs:
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         JWT_SECRET: ${{ secrets.JWT_SECRET }}
       run: |
-        cp .env.production .env
         echo "DB_HOST=localhost" > .env
         echo "DB_PORT=3306" >> .env
         echo "DB_DATABASE=u492226363_escola" >> .env
