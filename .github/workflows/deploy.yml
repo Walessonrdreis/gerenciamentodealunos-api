@@ -40,7 +40,7 @@ jobs:
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         JWT_SECRET: ${{ secrets.JWT_SECRET }}
       run: |
-        echo "DB_HOST=localhost" > .env
+        echo "DB_HOST=127.0.0.1" > .env
         echo "DB_PORT=3306" >> .env
         echo "DB_DATABASE=u492226363_escola" >> .env
         echo "DB_USERNAME=u492226363_escola" >> .env
