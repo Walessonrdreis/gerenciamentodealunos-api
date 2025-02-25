@@ -33,14 +33,19 @@ class Migration {
             foreach ($toApplyMigrations as $migration) {
                 if (!in_array($migration, $appliedMigrations)) {
                     echo "Aplicando migration: $migration\n";
-                    $sql = file_get_contents($this->migrationsPath . '/' . $migration);
-                    $this->db->exec($sql);
+                    require_once $this->migrationsPath . '/' . $migration;
+                    
+                    $className = pathinfo($migration, PATHINFO_FILENAME);
+                    $migrationInstance = new $className();
+                    $migrationInstance->up();
+                    
                     $this->logMigration($migration);
                     echo "Migration aplicada com sucesso: $migration\n";
                 }
             }
-        } catch (\PDOException $e) {
+        } catch (\Exception $e) {
             echo "Erro ao executar migrações: " . $e->getMessage() . "\n";
+            echo "Stack trace: " . $e->getTraceAsString() . "\n";
             throw $e;
         }
     }
@@ -54,12 +59,17 @@ class Migration {
 
             foreach ($seedFiles as $seed) {
                 echo "Executando seed: $seed\n";
-                $sql = file_get_contents($this->seedsPath . '/' . $seed);
-                $this->db->exec($sql);
+                require_once $this->seedsPath . '/' . $seed;
+                
+                $className = pathinfo($seed, PATHINFO_FILENAME);
+                $seedInstance = new $className();
+                $seedInstance->run();
+                
                 echo "Seed executado com sucesso: $seed\n";
             }
-        } catch (\PDOException $e) {
+        } catch (\Exception $e) {
             echo "Erro ao executar seeds: " . $e->getMessage() . "\n";
+            echo "Stack trace: " . $e->getTraceAsString() . "\n";
             throw $e;
         }
     }
