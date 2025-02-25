@@ -1,6 +1,6 @@
 {
     "name": "escola/api",
-    "description": "API do Sistema de Gerenciamento Escolar",
+    "description": "API para gerenciamento de alunos",
     "type": "project",
     "require": {
         "php": ">=8.1",
@@ -17,5 +17,13 @@
         "optimize-autoloader": true,
         "preferred-install": "dist",
         "sort-packages": true
+    },
+    "scripts": {
+        "check-table": "php bin/check-table.php",
+        "check-user": "php bin/check-user.php",
+        "run-migrations": "php run-migrations.php",
+        "post-install-cmd": [
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+        ]
     }
 } 
