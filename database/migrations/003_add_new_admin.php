@@ -7,6 +7,16 @@ class AddNewAdmin {
         $db = Database::getInstance()->getConnection();
 
         try {
+            // Verificar se o usuário já existe
+            $stmt = $db->prepare("SELECT COUNT(*) FROM users WHERE email = ?");
+            $stmt->execute(['admin@escola.com']);
+            $count = $stmt->fetchColumn();
+
+            if ($count > 0) {
+                echo "Usuário admin já existe, pulando criação.\n";
+                return;
+            }
+
             $uuid = sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
                 mt_rand(0, 0xffff), mt_rand(0, 0xffff),
                 mt_rand(0, 0xffff),

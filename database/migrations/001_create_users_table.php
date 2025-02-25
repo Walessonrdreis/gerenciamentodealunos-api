@@ -20,12 +20,6 @@ class CreateUsersTable {
         try {
             $db->exec($sql);
             echo "Tabela 'users' criada com sucesso!\n";
-
-            // Criar usuário admin padrão
-            $senha = password_hash('admin123', PASSWORD_DEFAULT);
-            $stmt = $db->prepare("INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)");
-            $stmt->execute(['Administrador', 'admin@seoeads.com', $senha, 'admin']);
-            echo "Usuário admin criado com sucesso!\n";
         } catch (\PDOException $e) {
             echo "Erro ao criar tabela 'users': " . $e->getMessage() . "\n";
         }
