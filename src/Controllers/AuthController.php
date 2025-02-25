@@ -42,9 +42,9 @@ class AuthController
             // Gerar token JWT
             $payload = [
                 'id' => $user['id'],
-                'nome' => $user['nome'],
+                'name' => $user['name'],
                 'email' => $user['email'],
-                'tipo' => $user['tipo'],
+                'role' => $user['role'],
                 'exp' => time() + (60 * 60 * 24) // Token válido por 24 horas
             ];
 
@@ -56,9 +56,9 @@ class AuthController
                 'token' => $jwt,
                 'user' => [
                     'id' => $user['id'],
-                    'nome' => $user['nome'],
+                    'name' => $user['name'],
                     'email' => $user['email'],
-                    'tipo' => $user['tipo']
+                    'role' => $user['role']
                 ]
             ]);
         } catch (\Exception $e) {
@@ -86,9 +86,9 @@ class AuthController
                 'success' => true,
                 'user' => [
                     'id' => $decoded->id,
-                    'nome' => $decoded->nome,
+                    'name' => $decoded->name,
                     'email' => $decoded->email,
-                    'tipo' => $decoded->tipo
+                    'role' => $decoded->role
                 ]
             ]);
         } catch (\Exception $e) {
